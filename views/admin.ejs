@@ -9,11 +9,11 @@
   <form method="post" action="/admin/" enctype="application/x-www-form-urlencoded" class="">
     <div class="field field--input<%= locals.isInvalid('name', errors) ?  ' field--invalid' : '' %>">
       <label for="name">Nafn*:</label>
-      <input type="text" name="name" id="name">
+      <input type="text" name="name" id="name" value="<%= data.name %>">
     </div>
 
     <div class="field field--textarea<%= locals.isInvalid('description', errors) ?  ' field--invalid' : '' %>">
-      <label for="description">Lýsing*:</label>
+      <label for="description">Lýsing:</label>
       <textarea name="description" id="description"><%= data.description %></textarea>
     </div>
 
@@ -31,7 +31,7 @@
 </div>
 
 <div class="user">
-  <p class="user__loggedin">Innskráður sem: <strong><%= user.username %></strong></p>
+  <p class="user__loggedin">Innskráður sem: <strong><%= username %></strong></p>
   <p class="user__logout"><a href="/admin/logout">Útskrá</a></p>
 </div>
 

@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import {
   registrationValidationMiddleware,
   xssSanitizationMiddleware,
-} from '../routes/index-routes';
+} from '../lib/validation';
 
 // https://stackoverflow.com/questions/28769200/unit-testing-validation-with-express-validator
 async function applyAllMiddlewares(req, middlewares) {
@@ -22,7 +22,10 @@ describe('registration', () => {
       },
     };
 
-    await applyAllMiddlewares(req, registrationValidationMiddleware);
+    await applyAllMiddlewares(
+      req,
+      registrationValidationMiddleware('description')
+    );
 
     const validation = validationResult(req);
 
@@ -36,7 +39,7 @@ describe('registration', () => {
       },
     };
 
-    await applyAllMiddlewares(req, xssSanitizationMiddleware);
+    await applyAllMiddlewares(req, xssSanitizationMiddleware('description'));
 
     expect(req.body.name).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
   });

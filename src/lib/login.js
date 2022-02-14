@@ -37,7 +37,6 @@ passport.use(new Strategy(strat));
 
 // Geymum id á notanda í session, það er nóg til að vita hvaða notandi þetta er
 passport.serializeUser((user, done) => {
-  console.log('user :>> ', user);
   done(null, user.id);
 });
 
@@ -54,7 +53,6 @@ passport.deserializeUser(async (id, done) => {
 // Hjálpar middleware sem athugar hvort notandi sé innskráður og hleypir okkur
 // þá áfram, annars sendir á /login
 export function ensureLoggedIn(req, res, next) {
-  console.log('object :>> ', req.isAuthenticated());
   if (req.isAuthenticated()) {
     return next();
   }

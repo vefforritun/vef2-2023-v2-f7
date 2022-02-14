@@ -1,8 +1,12 @@
 import express from 'express';
-import { body, validationResult } from 'express-validator';
-import xss from 'xss';
+import { validationResult } from 'express-validator';
 import { catchErrors } from '../lib/catch-errors.js';
 import { listEvent, listEvents, listRegistered, register } from '../lib/db.js';
+import {
+  registrationValidationMiddleware,
+  sanitizationMiddleware,
+  xssSanitizationMiddleware,
+} from '../lib/validation.js';
 
 export const indexRouter = express.Router();
 
@@ -34,27 +38,6 @@ async function eventRoute(req, res, next) {
     data: {},
   });
 }
-
-export const registrationValidationMiddleware = [
-  body('name').isLength({ min: 1 }).withMessage('Nafn má ekki vera tómt'),
-  body('name')
-    .isLength({ max: 64 })
-    .withMessage('Nafn má að hámarki vera 64 stafir'),
-  body('comment')
-    .isLength({ max: 400 })
-    .withMessage('Athugasemd má að hámarki vera 400 stafir'),
-];
-
-// Viljum keyra sér og með validation, ver gegn „self XSS“
-export const xssSanitizationMiddleware = [
-  body('name').customSanitizer((v) => xss(v)),
-  body('comment').customSanitizer((v) => xss(v)),
-];
-
-const sanitizationMiddleware = [
-  body('name').trim().escape(),
-  body('comment').trim().escape(),
-];
 
 async function eventRegisteredRoute(req, res) {
   const events = await listEvents();
@@ -98,19 +81,13 @@ async function registerRoute(req, res) {
   const { slug } = req.params;
   const event = await listEvent(slug);
 
-  let success = true;
+  const registered = await register({
+    name,
+    comment,
+    event: event.id,
+  });
 
-  try {
-    success = await register({
-      name,
-      comment,
-      event: event.id,
-    });
-  } catch (e) {
-    console.error(e);
-  }
-
-  if (success) {
+  if (registered) {
     return res.redirect(`/${event.slug}`);
   }
 
@@ -121,10 +98,10 @@ indexRouter.get('/', catchErrors(indexRoute));
 indexRouter.get('/:slug', catchErrors(eventRoute));
 indexRouter.post(
   '/:slug',
-  registrationValidationMiddleware,
-  xssSanitizationMiddleware,
+  registrationValidationMiddleware('comment'),
+  xssSanitizationMiddleware('comment'),
   catchErrors(validationCheck),
-  sanitizationMiddleware,
+  sanitizationMiddleware('comment'),
   catchErrors(registerRoute)
 );
 indexRouter.get('/:slug/thanks', catchErrors(eventRegisteredRoute));

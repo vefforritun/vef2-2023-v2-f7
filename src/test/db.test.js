@@ -31,6 +31,10 @@ describe('db', () => {
     expect(result.name).toBe(name);
     expect(result.slug).toBe(name);
     expect(result.id).toBeGreaterThan(0);
+
+    // ARRANGE => setja upp test gögn
+    // ACT => Acta á test gögnin
+    // ASSERT => Staðfestum að það sem við gerðum gerðist rétt
   });
 
   it('does not create an invalid event', async () => {
@@ -73,6 +77,12 @@ describe('db', () => {
 
   it('does not allow registering to non existant event', async () => {
     const registration = await register({ name: 'r', event: 0 });
+
+    expect(registration).toBeNull();
+  });
+
+  it('does not allow registering to non existant event', async () => {
+    const registration = await register({ event: 0 });
 
     expect(registration).toBeNull();
   });

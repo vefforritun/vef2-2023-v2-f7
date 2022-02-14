@@ -152,6 +152,25 @@ export async function listEvent(slug) {
   return null;
 }
 
+// TODO gætum fellt þetta fall saman við það að ofan
+export async function listEventByName(name) {
+  const q = `
+    SELECT
+      id, name, slug, description, created, updated
+    FROM
+      events
+    WHERE name = $1
+  `;
+
+  const result = await query(q, [name]);
+
+  if (result && result.rowCount === 1) {
+    return result.rows[0];
+  }
+
+  return null;
+}
+
 export async function listRegistered(event) {
   const q = `
     SELECT
